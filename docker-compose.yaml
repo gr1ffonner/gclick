@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  web:
+    container_name: gclick-web
+    build:
+      dockerfile: api.Dockerfile
+    volumes:
+      - ./config.yml:/app/config.yml
+      - .:/app/
+    depends_on:
+      - clickhouse-db
+    networks:
+      - default
+    ports:
+      - 8888:8888
+    env_file:
+      - .env
+    restart: always
+  clickhouse-db:
+    build:
+      dockerfile: db.Dockerfile
+    environment:
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB}
+    env_file:
+      - .env
+    networks: 
+      - default
+    restart: always
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+
+networks:
+  default:
