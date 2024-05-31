@@ -1,7 +1,7 @@
 USE clickdb;
 
 CREATE TABLE IF NOT EXISTS events (
-    eventID Int64 DEFAULT unique_id(),
+    eventID Int64,
     eventType String,
     userID Int64,
     eventTime DateTime,

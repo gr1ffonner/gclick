@@ -13,6 +13,7 @@ import (
 // DB is a struct to hold the database connection.
 type ClickhouseWriter struct {
 	conn driver.Conn
+	log  logging.Logger
 }
 
 func NewClickhouseWriter(logger logging.Logger, cfg *config.Config) (*ClickhouseWriter, error) {
@@ -37,13 +38,26 @@ func NewClickhouseWriter(logger logging.Logger, cfg *config.Config) (*Clickhouse
 
 	return &ClickhouseWriter{
 		conn: conn,
+		log:  logger,
 	}, nil
 }
 
 func (c *ClickhouseWriter) Insert(ctx context.Context, a Article) error {
-	err := c.conn.Exec(ctx, "INSERT INTO events (eventType, userID, eventTime, payload) VALUES (?, ?, ?, ?)", a.EventType, a.UserID, a.EventTime, a.Payload)
+	err := c.conn.Exec(ctx, "INSERT INTO events (eventID,eventType, userID, eventTime, payload) VALUES (rand64(), ?, ?, ?, ?)", a.EventType, a.UserID, a.EventTime, a.Payload)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (c *ClickhouseWriter) GetbyEventTypeANDTime(ctx context.Context, evType string, evTime string) (Article, error) {
+	var a Article
+	r := c.conn.QueryRow(ctx, "SELECT eventID, eventType, userID, toString(eventTime), payload FROM events WHERE eventType = ? AND eventTime = ?", evType, evTime)
+	// convert eventtime to string
+
+	err := r.Scan(&a.EventID, &a.EventType, &a.UserID, &a.EventTime, &a.Payload)
+	if err != nil {
+		c.log.Info(err)
+	}
+	return a, nil
 }
