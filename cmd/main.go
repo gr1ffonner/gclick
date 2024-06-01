@@ -24,4 +24,5 @@ func main() {
 
 	// Start app
 	app.StartApp(*cfg, logger, db)
+
 }
