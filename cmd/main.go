@@ -22,6 +22,7 @@ func main() {
 	}
 	logger.Info("db is working")
 
+	logger.Info("Ci introduced")
 	// Start app
 	app.StartApp(*cfg, logger, db)
 
