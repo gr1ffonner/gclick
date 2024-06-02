@@ -27,7 +27,7 @@ func insertArticle(clickhouse db.ClickhouseWriter, logger logging.Logger) http.H
 			logger.Error(err)
 		}
 		// Parse the value of the a.EventTime field as a time.Time value
-		t, err := time.Parse("2006-01-02 15:04:05", a.EventTime)
+		t, err := time.Parse(layout, a.EventTime)
 		if err != nil {
 			logger.Error(err)
 		}
@@ -35,13 +35,13 @@ func insertArticle(clickhouse db.ClickhouseWriter, logger logging.Logger) http.H
 		strt := t.Format(time.RFC3339Nano)
 		strt = strings.ReplaceAll(strt, "T", " ")
 		strt = strings.ReplaceAll(strt, "Z", "")
-		logger.Info(a.EventTime)
+		logger.Info(strt)
 
 		err = clickhouse.Insert(ctx, a)
 		if err != nil {
 			logger.Error(err)
 		}
-		fmt.Fprintf(w, "everything is fine %s", a.EventTime)
+		fmt.Fprintf(w, "everything is fine %s", strt)
 	}
 }
 
