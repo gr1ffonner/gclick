@@ -1,0 +1,10 @@
+database:
+  host: clickhouse-db
+  port: 9000
+  username: clickuser
+  password: clickpass
+  database: clickdb
+
+server:
+  host: localhost
+  port: :8888
