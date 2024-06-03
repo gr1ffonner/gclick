@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/julienschmidt/httprouter" // Using httprouter for better route handling
 
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -24,6 +25,8 @@ const layout = "2006-01-02 15:04:05"
 // @Description	Insert article
 // @Tags			events
 // @Accept			json
+// @Produce		text/html
+// @Param data body model.Todo true "The input todo struct"
 // @Success		200
 // @Failure		400	{object}	error	"Bad request"
 // @Failure		404	{object}	error	"Not found"
@@ -35,8 +38,18 @@ func insertArticle(clickhouse db.ClickhouseWriter, logger logging.Logger) http.H
 		ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 		defer cancel()
 
+		validate := validator.New()
+
 		var a db.Article
+
 		err := json.NewDecoder(r.Body).Decode(&a)
+		if err != nil {
+			logger.Error(err)
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		err = validate.Struct(a)
 		if err != nil {
 			logger.Error(err)
 			http.Error(w, "Bad request", http.StatusBadRequest)
@@ -84,6 +97,11 @@ func getArticlesByTypeaANDTime(clickhouse db.ClickhouseWriter, logger logging.Lo
 		params := httprouter.ParamsFromContext(ctx)
 		evType := params.ByName("eventType")
 		evTime := params.ByName("eventTime")
+
+		if evType == "" || evTime == "" {
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
 
 		a, err := clickhouse.GetbyEventTypeANDTime(ctx, evType, evTime)
 		if err != nil {
