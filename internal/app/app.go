@@ -116,7 +116,12 @@ func getArticlesByTypeaANDTime(clickhouse db.ClickhouseWriter, logger logging.Lo
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(a)
+		err = json.NewEncoder(w).Encode(a)
+		if err != nil {
+			logger.Error("failed to encode", err)
+			http.Error(w, "Internal Server Error, failed to encode", http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
