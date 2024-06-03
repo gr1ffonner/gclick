@@ -1,4 +1,99 @@
+basePath: /api/v1
+definitions:
+  db.Article:
+    properties:
+      eventID:
+        type: integer
+      eventTime:
+        type: string
+      eventType:
+        type: string
+      payload:
+        type: string
+      userID:
+        type: integer
+    type: object
+host: localhost:8888
 info:
-  contact: {}
-paths: {}
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: API for test task
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: API for test task
+  version: "1.0"
+paths:
+  /event:
+    post:
+      consumes:
+      - application/json
+      description: Insert article
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+          schema: {}
+        "404":
+          description: Not found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Insert article
+      tags:
+      - events
+  /event/{eventType}/{eventTime}:
+    get:
+      description: Get articles by type and time
+      parameters:
+      - description: event type
+        in: path
+        name: eventType
+        required: true
+        type: string
+      - description: event time
+        in: path
+        name: eventTime
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.Article'
+        "400":
+          description: Bad request
+          schema: {}
+        "404":
+          description: Not found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get articles by type and time
+      tags:
+      - events
+  /healthcheck:
+    get:
+      description: healthcheck endpoint
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+          schema: {}
+        "404":
+          description: Not found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: healthcheck
+      tags:
+      - healthcheck
 swagger: "2.0"
