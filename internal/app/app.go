@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 const layout = "2006-01-02 15:04:05"
@@ -74,6 +76,7 @@ func StartApp(cfg config.Config, logger logging.Logger, db *db.ClickhouseWriter)
 	mux.HandleFunc("POST /api/event", insertArticle(*db, logger))
 	mux.HandleFunc("GET /api/event/{eventType}/{eventTime}", getArticlesByTypeaANDTime(*db, logger))
 	mux.HandleFunc("GET /", welcome(logger))
+	mux.HandleFunc("GET /swagger/", httpSwagger.Handler(httpSwagger.URL("http://localhost:8888/swagger/doc.json")))
 	logger.Infof("server is working on %s%s", cfg.Server.Host, cfg.Server.Port)
 	err := http.ListenAndServe(cfg.Server.Port, mux)
 	if err != nil {
