@@ -28,12 +28,12 @@ func NewClickhouseWriter(logger logging.Logger, cfg *config.Config) (*Clickhouse
 		Debug: true,
 	})
 	if err != nil {
-		logger.Error(err)
+		return nil, err
 	}
 
 	err = conn.Ping(ctx)
 	if err != nil {
-		logger.Error(err)
+		return nil, err
 	}
 
 	return &ClickhouseWriter{
