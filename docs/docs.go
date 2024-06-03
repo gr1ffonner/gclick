@@ -30,10 +30,24 @@ const docTemplate = `{
                 "consumes": [
                     "application/json"
                 ],
+                "produces": [
+                    "text/html"
+                ],
                 "tags": [
                     "events"
                 ],
                 "summary": "Insert article",
+                "parameters": [
+                    {
+                        "description": "The input article struct",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/db.Article"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -128,6 +142,13 @@ const docTemplate = `{
     "definitions": {
         "db.Article": {
             "type": "object",
+            "required": [
+                "eventID",
+                "eventTime",
+                "eventType",
+                "payload",
+                "userID"
+            ],
             "properties": {
                 "eventID": {
                     "type": "integer"

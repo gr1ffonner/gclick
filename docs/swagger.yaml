@@ -12,6 +12,12 @@ definitions:
         type: string
       userID:
         type: integer
+    required:
+    - eventID
+    - eventTime
+    - eventType
+    - payload
+    - userID
     type: object
 host: localhost:8888
 info:
@@ -32,6 +38,15 @@ paths:
       consumes:
       - application/json
       description: Insert article
+      parameters:
+      - description: The input article struct
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/db.Article'
+      produces:
+      - text/html
       responses:
         "200":
           description: OK
