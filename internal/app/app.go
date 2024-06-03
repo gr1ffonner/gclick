@@ -26,7 +26,7 @@ const layout = "2006-01-02 15:04:05"
 // @Tags			events
 // @Accept			json
 // @Produce		text/html
-// @Param data body model.Todo true "The input todo struct"
+// @Param data body db.Article true "The input article struct"
 // @Success		200
 // @Failure		400	{object}	error	"Bad request"
 // @Failure		404	{object}	error	"Not found"
@@ -52,7 +52,14 @@ func insertArticle(clickhouse db.ClickhouseWriter, logger logging.Logger) http.H
 		err = validate.Struct(a)
 		if err != nil {
 			logger.Error(err)
-			http.Error(w, "Bad request", http.StatusBadRequest)
+
+			validationErrors, ok := err.(validator.ValidationErrors)
+			if ok {
+				for _, fieldError := range validationErrors {
+					http.Error(w, fmt.Sprintf("You should provide %s", fieldError.Field()), http.StatusBadRequest)
+				}
+				return
+			}
 			return
 		}
 
@@ -94,12 +101,11 @@ func getArticlesByTypeaANDTime(clickhouse db.ClickhouseWriter, logger logging.Lo
 		ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 		defer cancel()
 
-		params := httprouter.ParamsFromContext(ctx)
-		evType := params.ByName("eventType")
-		evTime := params.ByName("eventTime")
+		evType := r.URL.Query().Get("eventType")
+		evTime := r.URL.Query().Get("eventTime")
 
 		if evType == "" || evTime == "" {
-			http.Error(w, "Bad request", http.StatusBadRequest)
+			http.Error(w, "Bad request eventType or eventTime not provided", http.StatusBadRequest)
 			return
 		}
 
@@ -133,7 +139,7 @@ func healthcheck() http.HandlerFunc {
 func StartApp(cfg config.Config, logger logging.Logger, db *db.ClickhouseWriter) {
 	router := httprouter.New()
 	router.HandlerFunc("POST", "/api/v1/event", insertArticle(*db, logger))
-	router.HandlerFunc("GET", "/api/v1/event/:eventType/:eventTime", getArticlesByTypeaANDTime(*db, logger))
+	router.HandlerFunc("GET", "/api/v1/event/", getArticlesByTypeaANDTime(*db, logger))
 	router.HandlerFunc("GET", "/api/v1/healthcheck", healthcheck())
 	router.Handler(http.MethodGet, "/swagger", http.RedirectHandler("/swagger/index.html", http.StatusMovedPermanently))
 	router.Handler(http.MethodGet, "/swagger/*any", httpSwagger.WrapHandler)
