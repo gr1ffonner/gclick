@@ -1,10 +1,9 @@
 package main
 
 import (
-	"gclick/internal/app"
-	"gclick/internal/db"
-	"gclick/pkg/config"
-	"gclick/pkg/logging"
+	"github.com/gr1ffonner/fintest/internal/app"
+	"github.com/gr1ffonner/fintest/internal/config"
+	"github.com/gr1ffonner/fintest/pkg/logging"
 )
 
 //	@title			API for test task

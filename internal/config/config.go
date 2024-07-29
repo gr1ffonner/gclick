@@ -1,9 +1,9 @@
 package config
 
 import (
-	"gclick/pkg/logging"
 	"sync"
 
+	"github.com/gr1ffonner/fintest/pkg/logging"
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
